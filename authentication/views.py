@@ -24,6 +24,9 @@ class Login(GenericAPIView):
         if user is None or not User.check_password(user, serializer.data['password']):
             return Response('Username or password is incorrect!', status=status.HTTP_401_UNAUTHORIZED)
 
+        if not user.is_active:
+            return Response('You are now disapproved!', status=status.HTTP_401_UNAUTHORIZED)
+
         userInfoSerializer = LoginResponseSerializer(user)
 
         token = AccessToken.for_user(user)

@@ -1,10 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework import status
-import jwt
-from datetime import datetime, timedelta
-from django.conf import settings
 from .serializers import LoginSerializer, RegisterSerializer, LoginResponseSerializer
 
 
@@ -28,14 +26,6 @@ class Login(GenericAPIView):
 
         userInfoSerializer = LoginResponseSerializer(user)
 
-        dt = datetime.now() + timedelta(days=2)
+        token = AccessToken.for_user(user)
 
-        token = jwt.encode({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'is_superuser': user.is_superuser,
-            'exp': datetime.now() + timedelta(days=2),
-        }, settings.SECRET_KEY, algorithm='HS256')
-
-        return Response(data={'user': userInfoSerializer.data, 'token': token}, status=status.HTTP_200_OK)
+        return Response(data={'user': userInfoSerializer.data, 'token': str(token)}, status=status.HTTP_200_OK)

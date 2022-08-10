@@ -1,13 +1,22 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import hashers
 from rest_framework import serializers
+from posts.models import Post
+
+
+class PostSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'content']
 
 
 class UserSerializer(serializers.ModelSerializer):
+    posts = PostSummarySerializer(many=True)
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email',
-                  'is_active', 'is_superuser', 'password']
+                  'is_active', 'is_superuser', 'password', 'posts']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
